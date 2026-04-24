@@ -1,0 +1,22 @@
+# Data
+data/
+SoccerNet_subset/
+SoccerNet_temp/
+*.npy
+*.mp4
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Backups and Large Files
+*.zip
+*.pth
+!checkpoints/*.pth
+
+# System
+.DS_Store
+.ipynb_checkpoints/
