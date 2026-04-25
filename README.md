@@ -1,53 +1,155 @@
-# 🏟️ AI-Based Football Highlight Detection System
+# ⚽ AI-Based Football Highlight Detection using Deep Learning
 
-An automated end-to-end pipeline for detecting key match events (Goals, Cards, Substitutions) in football broadcasts and generating condensed highlight reels.
+An end-to-end deep learning pipeline that automatically generates highlight reels from full-length football match videos. The system detects key events — **Goals, Cards, and Substitutions** — using temporal models trained on the [SoccerNet](https://www.soccer-net.org/) dataset, then stitches the best clips into a compact highlight video using a Knapsack optimization algorithm.
 
-## 🌟 Overview
-This project implements a deep learning approach to **Action Spotting** in soccer videos. By combining computer vision for spatial understanding and sequential modeling for temporal context, the system can identify specific events across a full 90-minute match and automatically stitch them into a high-quality highlight video.
+---
 
-## 🧠 Architecture
-The system follows a two-stage architecture:
+## 🏗️ System Architecture
 
-1.  **Spatial Feature Extraction (CNN):** 
-    *   Uses a pre-trained **ResNet** backbone to extract high-dimensional spatial features from video frames at 2 FPS.
-    *   Supports both ResNet18 and ResNet152 (matching the SoccerNet benchmark).
-2.  **Temporal Modeling:**
-    *   **Bi-Directional LSTM (Best Performer):** Captures dependencies in both forward and backward time directions.
-    *   **Transformer Encoder:** Utilizes multi-head self-attention to weigh the importance of frames within a 15-second window.
-3.  **Optimization:**
-    *   Uses a **Knapsack DP algorithm** to select the most confident events within a user-defined time budget (e.g., "Give me a 5-minute highlight reel").
-    *   **Temporal NMS:** Merges overlapping detections and replay clips for a clean output.
-
-## 📊 Key Results
-Trained on a subset of the **SoccerNet-v2** dataset:
-*   **Best Model:** CNN + Bi-LSTM
-*   **mAP (Mean Average Precision):** ~35.1% (Trained on 60 matches)
-*   **Validation Accuracy:** ~96.3%
-
-*Note: These results are achieved on a data-constrained subset to fit within computational limits. Standard benchmarks on 500+ matches typically reach 60-70% mAP.*
-
-## 🚀 Getting Started
-
-### 1. Installation
-```bash
-pip install -r requirements.txt
+```mermaid
+graph LR
+    A["📹 Raw Match<br/>Video (MP4)"] --> B["🔬 ResNet-18<br/>Feature Extractor"]
+    B --> C["512-dim Feature<br/>Vectors @ 2 FPS"]
+    C --> D["🧠 Temporal Model<br/>(BiLSTM / Transformer)"]
+    D --> E["📊 Class Probabilities<br/>per Frame"]
+    E --> F["⚙️ Event Grouping<br/>& Thresholding"]
+    F --> G["🎒 Knapsack<br/>Optimization"]
+    G --> H["✂️ MoviePy<br/>Video Stitcher"]
+    H --> I["🎬 Final<br/>Highlights (MP4)"]
 ```
 
-### 2. Usage
-*   **Training:** Run the `Football_Highlight_Detection.py` script or use the `Highlight_generation_FINAL.ipynb` notebook on Google Colab.
-*   **Inference:**
-    1.  Upload your match video (`.mp4`).
-    2.  Extract features using `extract_features_from_video()`.
-    3.  Generate events with `generate_highlights()`.
-    4.  Stitch the video with `create_highlight_video()`.
+### Two-Stage Design
+
+| Stage | Component | Purpose |
+|---|---|---|
+| **Spatial** | ResNet CNN | Extracts visual features from each frame (what is happening in this frame?) |
+| **Temporal** | BiLSTM / Transformer | Understands sequences of frames (is a goal being scored over these 30 frames?) |
+| **Selection** | 0/1 Knapsack (DP) | Picks the best combination of events that fits within a time budget |
+| **Output** | MoviePy Stitcher | Cuts and concatenates video clips into the final highlight reel |
+
+---
+
+## 📊 Results
+
+Three architectures were trained and compared on the SoccerNet Action Spotting benchmark (60-match subset):
+
+| Model | Test Accuracy | Test mAP | Val mAP (Best) | Epochs |
+|---|---|---|---|---|
+| CNN Baseline (FC layers) | 89.1% | 12.7% | 10.2% | 20 |
+| **CNN + BiLSTM** | **96.3%** | **35.1%** | **38.4%** | 23 |
+| CNN + Transformer | 93.9% | 8.9% | 10.3% | 18 |
+
+> **Key Finding:** The BiLSTM architecture significantly outperforms both the baseline and the Transformer on this dataset size, achieving **35.1% mAP** — approximately half of the state-of-the-art (~70% mAP) while using only **12% of the training data** and a single free-tier Google Colab GPU.
+
+### Training Curves
+
+| Loss Curves | Validation mAP | Confusion Matrices |
+|---|---|---|
+| ![Loss](results/training_loss_curves.png) | ![mAP](results/validation_map_curves.png) | ![CM](results/confusion_matrices.png) |
+
+| Model Comparison | Event Timeline |
+|---|---|
+| ![Comparison](results/model_comparison.png) | ![Timeline](results/event_timeline.png) |
+
+---
 
 ## 📁 Repository Structure
-*   `Football_Highlight_Detection.py`: Core logic for training and inference.
-*   `Highlight_generation_FINAL.ipynb`: Interactive notebook for Colab.
-*   `checkpoints/`: Pre-trained weights for Bi-LSTM and Transformer models.
-*   `results/`: Training curves, confusion matrices, and performance metrics.
-*   `requirements.txt`: Project dependencies.
 
-## 🤝 Acknowledgments
-*   **SoccerNet Team:** For the comprehensive dataset and baseline features.
-*   **MoviePy:** For the automated video editing capabilities.
+```
+Football-Highlights-Detection/
+├── Football_Highlight_Detection.py     # Master source code (all cells)
+├── Highlight_generation_FINAL.ipynb    # Jupyter notebook for Google Colab
+├── HOW_TO_RUN.md                       # Step-by-step execution guide
+├── README.md                           # This file
+├── requirements.txt                    # Python dependencies
+├── .gitignore                          # Git ignore rules
+├── checkpoints/                        # Trained model weights
+│   ├── CNN_Baseline_best.pth           # Baseline model (1.9 MB)
+│   ├── CNN_BiLSTM_best.pth             # Best model (38 MB)
+│   └── CNN_Transformer_best.pth        # Transformer model (51 MB)
+└── results/                            # Training output charts
+    ├── confusion_matrices.png
+    ├── event_timeline.png
+    ├── metrics_summary.json
+    ├── model_comparison.png
+    ├── training_loss_curves.png
+    └── validation_map_curves.png
+```
+
+---
+
+## 🚀 Quick Start
+
+See **[HOW_TO_RUN.md](HOW_TO_RUN.md)** for the full step-by-step guide. The short version:
+
+1. Open `Highlight_generation_FINAL.ipynb` in Google Colab (GPU runtime).
+2. Run setup cells (1–7) to install dependencies and define models.
+3. Upload the pre-trained `CNN_BiLSTM_best.pth` checkpoint.
+4. Upload any football match video and run inference.
+5. Download your generated highlight reel.
+
+---
+
+## ⚙️ Technical Details
+
+### Hyperparameters
+
+| Parameter | Value | Rationale |
+|---|---|---|
+| Feature Dimension | 512 | ResNet-18 average pool output |
+| Sequence Length | 30 frames | 15 seconds of context at 2 FPS |
+| Target FPS | 2 | Standard for SoccerNet temporal analysis |
+| BiLSTM Hidden Size | 256 | Balance between capacity and overfitting |
+| Dropout | 0.4 | Regularization for small dataset |
+| Learning Rate | 5e-4 | Adam optimizer with ReduceLROnPlateau |
+| Class Weights | Inverse frequency | Handles severe class imbalance (95%+ Background) |
+
+### Dataset
+
+- **Source:** [SoccerNet v2](https://www.soccer-net.org/) — Action Spotting task
+- **Training Subset:** 60 matches (~120 hours of video) from the test split
+- **Limitation:** Full dataset is 500 matches (~1000 hours). Free Colab's 112GB disk limits us to ~60 matches.
+- **Classes:** Goal, Substitution, Cards (Yellow/Red), Background
+
+---
+
+## ⚠️ Known Limitations & Future Work
+
+### Domain Shift (Custom Video Inference)
+The SoccerNet dataset provides features extracted with a large **ResNet-152 + PCA** pipeline. When processing custom YouTube videos, we use a lightweight **ResNet-18** for real-time extraction. This creates a **latent space mismatch** — the BiLSTM receives out-of-distribution embeddings, reducing accuracy on custom videos. **Fix:** End-to-end fine-tuning or a learned projection layer to align feature spaces.
+
+### Data Scale
+Training on 12% of SoccerNet limits generalization. With full dataset access (requires >200GB disk), mAP could reach 50%+.
+
+### Future Improvements
+- End-to-end training with raw video frames (requires multi-GPU setup)
+- Audio feature integration (crowd noise correlates with goals)
+- Attention-based feature pooling instead of average pooling
+- Multi-scale temporal analysis (short events like cards vs. long events like build-up play)
+
+---
+
+## 🛠️ Built With
+
+- **PyTorch** — Deep learning framework
+- **torchvision** — ResNet feature extraction
+- **MoviePy** — Video editing and stitching
+- **OpenCV** — Frame-level video processing
+- **SoccerNet** — Dataset and evaluation API
+- **scikit-learn** — Metrics (mAP, confusion matrix)
+- **matplotlib / seaborn** — Visualization
+
+---
+
+## 📜 References
+
+1. Giancola, S., et al. *"SoccerNet: A Scalable Dataset for Action Spotting in Soccer Videos."* CVPR Workshops, 2018.
+2. Deliège, A., et al. *"SoccerNet-v2: A Dataset and Benchmarks for Holistic Understanding of Broadcast Soccer Videos."* CVPR Workshops, 2021.
+3. He, K., et al. *"Deep Residual Learning for Image Recognition."* CVPR, 2016.
+4. Apostolidis, E., et al. *"CA-SUM: Combining Attentive and Non-Attentive Summarization."* ECCV, 2022.
+
+---
+
+## 📄 License
+
+This project was developed as part of a Deep Learning course at university. For academic use only.

@@ -1,22 +1,29 @@
-# Data
-data/
+# Deep Learning Project - Ignored Files
+
+# Datasets and Large files
 SoccerNet_subset/
-SoccerNet_temp/
-*.npy
+soccernet_data_backup.zip
 *.mp4
+*.mkv
+*.avi
 
-# Python
+# Python and System Caches
 __pycache__/
-*.py[cod]
-*$py.class
-venv/
-.env
-
-# Backups and Large Files
-*.zip
-*.pth
-!checkpoints/*.pth
-
-# System
+*.pyc
 .DS_Store
-.ipynb_checkpoints/
+
+# Backups and Notebooks
+Main Files/
+Highlight_generation (1).ipynb
+Highlight_generation_FINAL_colab.ipynb
+
+# Personal/Private Documentation
+TECHNICAL_DOCUMENTATION.md
+VIVA_DEFENSE_GUIDE.md
+
+# Junk/Old code
+code.py
+idea.md
+github_repos/
+Project Documents/
+System_Architecture_and_Workflow.md
