@@ -183,7 +183,7 @@ def stitch_highlight_video(video_path, events, output_path, target_fps=2, progre
 # ==============================================================
 # 3. FLASK APP
 # ==============================================================
-app = Flask(__name__, static_folder='frontend', static_url_path='/static')
+app = Flask(__name__, static_folder='frontend', static_url_path='')
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500 MB
 
 # CORS headers
