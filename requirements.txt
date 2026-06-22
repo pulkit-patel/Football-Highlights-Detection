@@ -9,3 +9,7 @@ SoccerNet
 Pillow
 gradio
 jupytext
+librosa
+scipy
+easyocr
+transformers

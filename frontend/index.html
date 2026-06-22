@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Highlight &amp; Multi-Modal Analysis Hub</title>
+    <meta name="description"
+        content="AI-powered football highlight detection using CNN-BiLSTM, Audio Analysis, OCR Scoreboard Tracking, CLIP Semantic Search, and RAG Chatbot.">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <!-- ===== THREE.JS 3D BACKGROUND ===== -->
+    <div id="three-bg"></div>
+    <div class="bg-overlay"></div>
+
+    <!-- ===== APP CONTAINER ===== -->
+    <div id="app">
+
+        <!-- ===== SIDEBAR ===== -->
+        <aside id="sidebar">
+            <div class="sidebar-header">
+                <h2>⚙️ Settings &amp; Configuration</h2>
+            </div>
+            <hr class="sidebar-divider">
+
+            <div class="sidebar-section">
+                <h3>🧠 Model Checkpoint</h3>
+                <div id="model-status"><span class="status-badge status-warn">⏳ Checking…</span></div>
+            </div>
+            <hr class="sidebar-divider">
+
+            <div class="sidebar-section">
+                <h3>🎚️ Core Parameters</h3>
+                <div class="control-group">
+                    <label for="threshold">Detection Sensitivity</label>
+                    <div class="slider-row">
+                        <input type="range" id="threshold" min="0.10" max="0.90" value="0.30" step="0.05">
+                        <span class="slider-val" id="threshold-val">0.30</span>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label for="max-duration">Max Highlight Length (min)</label>
+                    <div class="slider-row">
+                        <input type="range" id="max-duration" min="1" max="15" value="7" step="1">
+                        <span class="slider-val" id="duration-val">7</span>
+                    </div>
+                </div>
+            </div>
+            <hr class="sidebar-divider">
+
+            <div class="sidebar-section">
+                <h3>🚀 AI Upgrade Features</h3>
+                <label class="checkbox-label"><input type="checkbox" id="enable-audio" checked> Enable Audio Event
+                    Classifier</label>
+                <label class="checkbox-label"><input type="checkbox" id="enable-ocr" checked> Enable Scoreboard OCR
+                    Tracker</label>
+                <label class="checkbox-label"><input type="checkbox" id="enable-clip" checked> Enable CLIP Semantic
+                    Video Search</label>
+                <div class="control-group" style="margin-top:0.6rem">
+                    <label for="ocr-position">Scoreboard ROI Location</label>
+                    <select id="ocr-position">
+                        <option value="top-left">top-left</option>
+                        <option value="top-right">top-right</option>
+                    </select>
+                </div>
+            </div>
+            <hr class="sidebar-divider">
+
+            <div class="sidebar-section">
+                <h3>🔑 API Key (Optional)</h3>
+                <div class="control-group">
+                    <label for="hf-token">Hugging Face Token</label>
+                    <input type="password" id="hf-token" placeholder="hf_…">
+                </div>
+            </div>
+        </aside>
+
+        <!-- ===== MAIN CONTENT ===== -->
+        <main id="main-content">
+
+            <!-- Header -->
+            <header class="main-header">
+                <h1>⚽ Football Highlight &amp; Multi-Modal Analysis Hub</h1>
+                <p>Spatial CNN Features · Temporal Bi-LSTM Detections · OCR · CLIP Semantic Search · RAG Chatbot</p>
+            </header>
+
+            <!-- Pre-pipeline tabs -->
+            <nav id="tabs-pre" class="tabs-nav">
+                <button class="tab-btn active" data-tab="upload">🚀 Process Video Pipeline</button>
+                <button class="tab-btn" data-tab="qa">💬 AI Codebase Q&amp;A</button>
+            </nav>
+
+            <!-- Post-pipeline tabs (hidden initially) -->
+            <nav id="tabs-post" class="tabs-nav hidden">
+                <button class="tab-btn active" data-tab="highlights">🎬 Highlight Reel &amp; Summary</button>
+                <button class="tab-btn" data-tab="ocr">🔤 Scoreboard Tracker (OCR)</button>
+                <button class="tab-btn" data-tab="audio">🔊 Audio Event Analysis</button>
+                <button class="tab-btn" data-tab="search">🔍 Semantic Video Search</button>
+                <button class="tab-btn" data-tab="chatbot">💬 AI Chatbot Assistant</button>
+            </nav>
+
+            <!-- ===== PANELS ===== -->
+            <div id="panels">
+
+                <!-- UPLOAD -->
+                <section id="panel-upload" class="panel active">
+                    <h2>📁 Upload Files to Run Video Pipeline</h2>
+                    <div class="upload-grid">
+                        <div class="dropzone" id="features-dropzone">
+                            <div class="dropzone-icon">📊</div>
+                            <p>Upload <code>.npy</code> Visual Frame Features</p>
+                            <span class="dropzone-hint">PCA-reduced 512-dim ResNet-152 feature vectors</span>
+                            <input type="file" id="features-input" accept=".npy" hidden>
+                            <div id="features-filename" class="file-name hidden"></div>
+                        </div>
+                        <div class="dropzone" id="video-dropzone">
+                            <div class="dropzone-icon">🎬</div>
+                            <p>Upload <code>.mp4</code> Source Match Video</p>
+                            <span class="dropzone-hint">The raw source video file (.mp4, .avi, .mkv)</span>
+                            <input type="file" id="video-input" accept=".mp4,.avi,.mkv" hidden>
+                            <div id="video-filename" class="file-name hidden"></div>
+                        </div>
+                    </div>
+                    <button id="run-btn" class="primary-btn" disabled>🚀 Run Multi-Modal Highlight Pipeline</button>
+                    <div id="empty-state" class="empty-state">
+                        <h3>⚽ Ready for Multi-Modal Analysis</h3>
+                        <p>Upload the visual feature vectors file (<code>.npy</code>) and matching video file
+                            (<code>.mp4</code>) to compile highlights, extract audio spectrogram peaks,
+                            scan the scoreboard time/score overlays, and enable natural language video searches!</p>
+                    </div>
+                </section>
+
+                <!-- Q&A (pre-pipeline chatbot) -->
+                <section id="panel-qa" class="panel">
+                    <h2>💬 Ask Questions About the Codebase Architecture</h2>
+                    <p class="panel-caption">Ask about BiLSTM vs. Transformers, Knapsack algorithm, Evaluation metrics,
+                        or Class Imbalances.</p>
+                    <div id="qa-messages" class="chat-container"></div>
+                    <div class="chat-input-row">
+                        <input type="text" id="qa-input" placeholder="Ask a question about the project code…">
+                        <button id="qa-send" class="send-btn">Send</button>
+                    </div>
+                </section>
+
+                <!-- HIGHLIGHTS REEL -->
+                <section id="panel-highlights" class="panel">
+                    <h2>🎬 Processed Highlights Reel</h2>
+                    <div id="metrics-row" class="metrics-row"></div>
+                    <div class="results-grid">
+                        <div class="video-section">
+                            <h3>▶️ Watch Highlights Video</h3>
+                            <video id="highlights-video" controls></video>
+                            <a id="download-btn" class="primary-btn download-btn" download="football_highlights.mp4">⬇️
+                                Download Highlights Video (.mp4)</a>
+                        </div>
+                        <div class="summary-section">
+                            <h3>📰 Generative AI Match Narrative</h3>
+                            <div id="match-summary" class="summary-card">Loading summary…</div>
+                        </div>
+                    </div>
+                    <h3 style="margin-bottom:0.8rem">📍 Highlights Timeline &amp; Detection Lists</h3>
+                    <canvas id="timeline-canvas" height="100"></canvas>
+                    <div id="events-table-container"></div>
+
+                    <!-- Match Frame Gallery -->
+                    <div class="section-divider"></div>
+                    <h3 style="margin-bottom:0.8rem">📸 Timeline</h3>
+                    <div id="match-timeline" class="match-timeline"></div>
+
+                </section>
+
+                <!-- OCR -->
+                <section id="panel-ocr" class="panel">
+                    <h2>🔤 Video OCR Scoreboard Tracking Timeline</h2>
+                    <p class="panel-caption">Extracted team scoreboards and game minutes from overlay broadcasts.</p>
+                    <div class="ocr-grid">
+                        <div>
+                            <h3>📋 Score Progress Log</h3>
+                            <div id="ocr-table-container"></div>
+                        </div>
+                        <div>
+                            <h3>⚽ Match Score Milestones</h3>
+                            <div id="ocr-milestones"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- AUDIO -->
+                <section id="panel-audio" class="panel">
+                    <h2>🔊 Sound Analysis Timeline Peaks</h2>
+                    <p class="panel-caption">Classifies spectator crowds cheering volume and whistles from match audio
+                        track.</p>
+                    <div class="audio-grid">
+                        <div>
+                            <h3>📊 Sound Amplitude &amp; Event Peaks</h3>
+                            <canvas id="audio-canvas" height="300"></canvas>
+                        </div>
+                        <div>
+                            <h3>📋 Classified Audio Detections</h3>
+                            <div id="audio-table-container"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- CLIP SEARCH -->
+                <section id="panel-search" class="panel">
+                    <h2>🔍 CLIP Semantic Text-to-Video Search</h2>
+                    <p class="panel-caption">Enter a query (e.g. "foul", "goal celebration", "stretching player") to
+                        find the exact match frames.</p>
+                    <div class="search-input-row">
+                        <input type="text" id="search-input" placeholder="Enter your semantic search description…">
+                        <button id="search-btn" class="send-btn">🔎 Search</button>
+                    </div>
+                    <div id="search-results" class="search-results-grid"></div>
+                </section>
+
+                <!-- CHATBOT -->
+                <section id="panel-chatbot" class="panel">
+                    <h2>💬 Interactive Viewer Commentator &amp; Developer AI Chatbot</h2>
+                    <p class="panel-caption">Type match timeline queries (e.g. "show match goals summary") or codebase
+                        architecture questions.</p>
+                    <div id="chat-messages" class="chat-container"></div>
+                    <div class="chat-input-row">
+                        <input type="text" id="chat-input" placeholder="Ask about the game or codebase…">
+                        <button id="chat-send" class="send-btn">Send</button>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- ===== LOADING OVERLAY ===== -->
+    <div id="loading-overlay" class="hidden">
+        <div class="loading-content">
+            <div class="loading-spinner">
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+                <span class="spinner-icon">⚽</span>
+            </div>
+            <div class="loading-progress">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <p id="progress-text">Starting pipeline…</p>
+                <p id="progress-percent">0%</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script src="/static/app.js"></script>
+</body>
+
+</html>
