@@ -264,7 +264,7 @@ async function checkLastJob() {
 // =====================================================
 // 5. API HELPERS
 // =====================================================
-const API = path => path; // Same origin
+const API = path => 'https://football-highlights-detection.onrender.com' + path;
 
 async function checkStatus() {
     try {
