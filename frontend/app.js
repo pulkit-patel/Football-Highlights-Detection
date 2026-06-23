@@ -155,6 +155,7 @@ const APP = {
     ],
     chatMessages: [],
     pollTimer: null,
+    apiUrl: 'https://football-highlights-detection.onrender.com',
 };
 
 // =====================================================
@@ -210,7 +211,35 @@ const DOM = {
 // =====================================================
 // 4. INITIALIZATION
 // =====================================================
-document.addEventListener('DOMContentLoaded', () => {
+async function detectBackend() {
+    const host = window.location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1') {
+        APP.apiUrl = '';
+        console.log('⚡ Using local Flask backend (relative paths).');
+        return;
+    }
+    
+    // Check if local backend is running on port 5000, even if page loaded from Vercel
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1500); // 1.5 seconds timeout
+        const r = await fetch('http://localhost:5000/api/status', { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (r.ok) {
+            APP.apiUrl = 'http://localhost:5000';
+            console.log('⚡ Auto-detected local Flask backend on port 5000!');
+            return;
+        }
+    } catch (e) {
+        // Local server not running or unreachable
+    }
+    
+    APP.apiUrl = 'https://football-highlights-detection.onrender.com';
+    console.log('🌐 Using remote Render backend:', APP.apiUrl);
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await detectBackend();
     checkStatus();
     initSliders();
     initDropZones();
@@ -264,13 +293,7 @@ async function checkLastJob() {
 // =====================================================
 // 5. API HELPERS
 // =====================================================
-const API = path => {
-    const host = window.location.hostname;
-    if (host === 'localhost' || host === '127.0.0.1') {
-        return path;
-    }
-    return 'https://football-highlights-detection.onrender.com' + path;
-};
+const API = path => APP.apiUrl + path;
 
 async function checkStatus() {
     try {
