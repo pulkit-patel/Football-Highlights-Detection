@@ -213,6 +213,22 @@ const DOM = {
 // =====================================================
 async function detectBackend() {
     const host = window.location.hostname;
+    
+    // First, check if the current origin itself is running the backend (e.g. deployed Flask app)
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1500); // 1.5 seconds timeout
+        const r = await fetch(window.location.origin + '/api/status', { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (r.ok) {
+            APP.apiUrl = window.location.origin;
+            console.log('⚡ Using backend on current origin:', APP.apiUrl);
+            return;
+        }
+    } catch (e) {
+        // Current origin doesn't serve the API (e.g., hosted on Vercel/Netlify separate from backend)
+    }
+
     if (host === 'localhost' || host === '127.0.0.1') {
         APP.apiUrl = '';
         console.log('⚡ Using local Flask backend (relative paths).');
@@ -388,28 +404,105 @@ function updateRunBtn() {
 // =====================================================
 // 9. PIPELINE EXECUTION
 // =====================================================
-async function startPipeline() {
-    const form = new FormData();
-    form.append('features', APP.featuresFile);
-    form.append('video', APP.videoFile);
-    form.append('threshold', DOM.threshold.value);
-    form.append('max_duration', DOM.maxDuration.value);
-    form.append('enable_audio', DOM.enableAudio.checked);
-    form.append('enable_ocr', DOM.enableOcr.checked);
-    form.append('enable_clip', DOM.enableClip.checked);
-    form.append('ocr_crop_pos', DOM.ocrPos.value);
-    form.append('hf_token', DOM.hfToken.value);
+async function uploadFileInChunks(file, fileType, taskId, onProgress) {
+    const CHUNK_SIZE = 2 * 1024 * 1024; // 2MB chunk size
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    
+    for (let i = 0; i < totalChunks; i++) {
+        const start = i * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, file.size);
+        const chunk = file.slice(start, end);
+        
+        const form = new FormData();
+        form.append('chunk', chunk);
+        form.append('task_id', taskId);
+        form.append('file_type', fileType);
+        form.append('chunk_index', i);
+        form.append('total_chunks', totalChunks);
+        
+        let attempts = 3;
+        let success = false;
+        while (attempts > 0 && !success) {
+            try {
+                const response = await fetch(API('/api/upload-chunk'), {
+                    method: 'POST',
+                    body: form
+                });
+                if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+                success = true;
+            } catch (err) {
+                attempts--;
+                if (attempts === 0) throw new Error(`Failed to upload chunk ${i + 1}/${totalChunks}: ${err.message}`);
+                await new Promise(resolve => setTimeout(resolve, 1000)); // wait 1s before retry
+            }
+        }
+        
+        if (onProgress) {
+            onProgress(end, file.size);
+        }
+    }
+}
 
+async function startPipeline() {
     DOM.loading.classList.remove('hidden');
     DOM.progFill.style.width = '0%';
-    DOM.progText.textContent = 'Uploading files…';
+    DOM.progText.textContent = 'Preparing upload...';
     DOM.progPct.textContent = '0%';
 
+    const taskId = Math.random().toString(36).substring(2, 10);
+    APP.taskId = taskId;
+
+    const totalBytes = APP.featuresFile.size + APP.videoFile.size;
+    let uploadedBytesFeatures = 0;
+    let uploadedBytesVideo = 0;
+
+    const updateOverallProgress = () => {
+        const totalUploaded = uploadedBytesFeatures + uploadedBytesVideo;
+        const pct = Math.round((totalUploaded / totalBytes) * 100);
+        // Map 0-100% upload progress to 0-40% of the UI progress bar
+        const uiPct = Math.round(pct * 0.4); 
+        DOM.progFill.style.width = uiPct + '%';
+        DOM.progPct.textContent = uiPct + '%';
+        const uploadedMB = (totalUploaded / 1024 / 1024).toFixed(1);
+        const totalMB = (totalBytes / 1024 / 1024).toFixed(1);
+        DOM.progText.textContent = `Uploading files (${uploadedMB} MB / ${totalMB} MB)...`;
+    };
+
     try {
-        const r = await fetch(API('/api/run-pipeline'), { method: 'POST', body: form });
+        // 1. Upload features file
+        await uploadFileInChunks(APP.featuresFile, 'features', taskId, (uploaded, total) => {
+            uploadedBytesFeatures = uploaded;
+            updateOverallProgress();
+        });
+
+        // 2. Upload video file
+        await uploadFileInChunks(APP.videoFile, 'video', taskId, (uploaded, total) => {
+            uploadedBytesVideo = uploaded;
+            updateOverallProgress();
+        });
+
+        DOM.progText.textContent = 'Initializing pipeline on server...';
+
+        // 3. Trigger pipeline execution
+        const payload = {
+            task_id: taskId,
+            threshold: parseFloat(DOM.threshold.value),
+            max_duration: parseInt(DOM.maxDuration.value),
+            enable_audio: DOM.enableAudio.checked,
+            enable_ocr: DOM.enableOcr.checked,
+            enable_clip: DOM.enableClip.checked,
+            ocr_crop_pos: DOM.ocrPos.value,
+            hf_token: DOM.hfToken.value,
+        };
+
+        const r = await fetch(API('/api/run-pipeline-chunked'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
         const d = await r.json();
         if (d.error) { alert('Error: ' + d.error); DOM.loading.classList.add('hidden'); return; }
-        APP.taskId = d.task_id;
+        
         localStorage.setItem('last_task_id', d.task_id);
         const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?job_id=' + d.task_id;
         window.history.pushState({ path: newUrl }, '', newUrl);
@@ -426,9 +519,11 @@ function pollProgress() {
             const r = await fetch(API('/api/progress/' + APP.taskId));
             const d = await r.json();
             const pct = Math.round((d.progress || 0) * 100);
-            DOM.progFill.style.width = pct + '%';
+            // Map 0-100% backend progress to 40-100% of UI progress bar
+            const uiPct = Math.round(40 + pct * 0.6);
+            DOM.progFill.style.width = uiPct + '%';
             DOM.progText.textContent = d.step || '';
-            DOM.progPct.textContent = pct + '%';
+            DOM.progPct.textContent = uiPct + '%';
 
             if (d.done) {
                 clearInterval(APP.pollTimer);

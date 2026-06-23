@@ -297,6 +297,93 @@ def index():
 def status():
     return jsonify({'model': model_info, 'has_results': bool(pipeline_results)})
 
+@app.route('/api/upload-chunk', methods=['POST'])
+def upload_chunk():
+    file_chunk = request.files.get('chunk')
+    task_id = request.form.get('task_id')
+    file_type = request.form.get('file_type') # 'features' or 'video'
+    chunk_index = int(request.form.get('chunk_index', 0))
+    total_chunks = int(request.form.get('total_chunks', 1))
+
+    if not file_chunk or not task_id or not file_type:
+        return jsonify({'error': 'Missing parameters'}), 400
+
+    # Sanitize task_id
+    task_id = "".join(c for c in task_id if c.isalnum() or c in '-_')
+
+    # Store chunks in temp directory
+    upload_dir = os.path.join(tempfile.gettempdir(), f'upload_{task_id}_{file_type}')
+    os.makedirs(upload_dir, exist_ok=True)
+
+    chunk_path = os.path.join(upload_dir, f'part_{chunk_index}')
+    file_chunk.save(chunk_path)
+
+    # Check if we have all chunks
+    parts = [fn for fn in os.listdir(upload_dir) if fn.startswith('part_')]
+    if len(parts) == total_chunks:
+        # Merge them
+        final_dir = os.path.join(tempfile.gettempdir(), f'pipeline_{task_id}')
+        os.makedirs(final_dir, exist_ok=True)
+        final_path = os.path.join(final_dir, 'features.npy' if file_type == 'features' else 'source.mp4')
+
+        # Sort parts numerically by index to ensure correct ordering
+        parts.sort(key=lambda x: int(x.split('_')[1]))
+
+        with open(final_path, 'wb') as dest:
+            for part in parts:
+                part_path = os.path.join(upload_dir, part)
+                with open(part_path, 'rb') as src:
+                    dest.write(src.read())
+                os.remove(part_path)
+
+        try:
+            os.rmdir(upload_dir)
+        except:
+            pass
+
+        return jsonify({'status': 'complete', 'path': final_path})
+
+    return jsonify({'status': 'chunk_saved'})
+
+
+@app.route('/api/run-pipeline-chunked', methods=['POST'])
+def run_pipeline_chunked():
+    if model is None:
+        return jsonify({'error': 'Model checkpoint not loaded'}), 400
+
+    data = request.get_json() or {}
+    task_id = data.get('task_id')
+    if not task_id:
+        return jsonify({'error': 'task_id is required'}), 400
+
+    # Sanitize task_id
+    task_id = "".join(c for c in task_id if c.isalnum() or c in '-_')
+
+    final_dir = os.path.join(tempfile.gettempdir(), f'pipeline_{task_id}')
+    fp = os.path.join(final_dir, 'features.npy')
+    vp = os.path.join(final_dir, 'source.mp4')
+
+    if not os.path.isfile(fp) or not os.path.isfile(vp):
+        return jsonify({'error': 'Uploaded files not found on server. Please re-upload.'}), 400
+
+    cfg = {
+        'threshold': float(data.get('threshold', 0.3)),
+        'max_duration': int(data.get('max_duration', 7)),
+        'enable_audio': data.get('enable_audio') is True,
+        'enable_ocr': data.get('enable_ocr') is True,
+        'enable_clip': data.get('enable_clip') is True,
+        'ocr_crop_pos': data.get('ocr_crop_pos', 'top-left'),
+        'hf_token': data.get('hf_token', ''),
+    }
+
+    op = os.path.join(RESULTS_DIR, f'highlights_{task_id}.mp4')
+
+    pipeline_progress[task_id] = {'progress': 0, 'step': 'Starting...', 'done': False, 'error': None}
+    t = threading.Thread(target=_worker, args=(task_id, fp, vp, op, final_dir, cfg), daemon=True)
+    t.start()
+    return jsonify({'task_id': task_id})
+
+
 @app.route('/api/run-pipeline', methods=['POST'])
 def run_pipeline():
     if model is None:

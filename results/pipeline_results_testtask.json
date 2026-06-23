@@ -1,0 +1,385 @@
+{
+  "selected_events": [
+    {
+      "start": 0,
+      "end": 83,
+      "event_frame": 22,
+      "confidence": 0.8313124179840088,
+      "time_seconds": 11.0,
+      "class": "Goal",
+      "time_str": "0:11",
+      "half": 1
+    },
+    {
+      "start": 252,
+      "end": 373,
+      "event_frame": 312,
+      "confidence": 0.994676947593689,
+      "time_seconds": 156.0,
+      "class": "Goal",
+      "time_str": "2:36",
+      "half": 1
+    },
+    {
+      "start": 254,
+      "end": 377,
+      "event_frame": 315,
+      "confidence": 0.9977982838948568,
+      "time_seconds": 157.0,
+      "class": "Goal",
+      "time_str": "2:37",
+      "half": 1
+    },
+    {
+      "start": 268,
+      "end": 389,
+      "event_frame": 328,
+      "confidence": 0.9999696016311646,
+      "time_seconds": 164.0,
+      "class": "Cards",
+      "time_str": "2:44",
+      "half": 1
+    },
+    {
+      "start": 417,
+      "end": 538,
+      "event_frame": 477,
+      "confidence": 0.9928504228591919,
+      "time_seconds": 238.5,
+      "class": "Goal",
+      "time_str": "3:58",
+      "half": 1
+    },
+    {
+      "start": 919,
+      "end": 1040,
+      "event_frame": 979,
+      "confidence": 0.9992863535881042,
+      "time_seconds": 489.5,
+      "class": "Substitution",
+      "time_str": "8:09",
+      "half": 1
+    },
+    {
+      "start": 1026,
+      "end": 1147,
+      "event_frame": 1086,
+      "confidence": 0.9923675656318665,
+      "time_seconds": 543.0,
+      "class": "Goal",
+      "time_str": "9:03",
+      "half": 1
+    }
+  ],
+  "all_events": [
+    {
+      "start": 0,
+      "end": 83,
+      "event_frame": 22,
+      "confidence": 0.8313124179840088,
+      "time_seconds": 11.0,
+      "class": "Goal",
+      "time_str": "0:11",
+      "half": 1
+    },
+    {
+      "start": 19,
+      "end": 142,
+      "event_frame": 80,
+      "confidence": 0.6924933791160583,
+      "time_seconds": 39.5,
+      "class": "Cards",
+      "time_str": "0:39",
+      "half": 1
+    },
+    {
+      "start": 23,
+      "end": 144,
+      "event_frame": 83,
+      "confidence": 0.853077232837677,
+      "time_seconds": 41.5,
+      "class": "Cards",
+      "time_str": "0:41",
+      "half": 1
+    },
+    {
+      "start": 129,
+      "end": 250,
+      "event_frame": 189,
+      "confidence": 0.9770390391349792,
+      "time_seconds": 94.5,
+      "class": "Goal",
+      "time_str": "1:34",
+      "half": 1
+    },
+    {
+      "start": 144,
+      "end": 265,
+      "event_frame": 204,
+      "confidence": 0.47924453020095825,
+      "time_seconds": 102.0,
+      "class": "Cards",
+      "time_str": "1:42",
+      "half": 1
+    },
+    {
+      "start": 176,
+      "end": 297,
+      "event_frame": 236,
+      "confidence": 0.915677011013031,
+      "time_seconds": 118.0,
+      "class": "Substitution",
+      "time_str": "1:58",
+      "half": 1
+    },
+    {
+      "start": 252,
+      "end": 373,
+      "event_frame": 312,
+      "confidence": 0.994676947593689,
+      "time_seconds": 156.0,
+      "class": "Goal",
+      "time_str": "2:36",
+      "half": 1
+    },
+    {
+      "start": 254,
+      "end": 377,
+      "event_frame": 315,
+      "confidence": 0.9977982838948568,
+      "time_seconds": 157.0,
+      "class": "Goal",
+      "time_str": "2:37",
+      "half": 1
+    },
+    {
+      "start": 260,
+      "end": 381,
+      "event_frame": 320,
+      "confidence": 0.9731672406196594,
+      "time_seconds": 160.0,
+      "class": "Goal",
+      "time_str": "2:40",
+      "half": 1
+    },
+    {
+      "start": 268,
+      "end": 389,
+      "event_frame": 328,
+      "confidence": 0.9999696016311646,
+      "time_seconds": 164.0,
+      "class": "Cards",
+      "time_str": "2:44",
+      "half": 1
+    },
+    {
+      "start": 298,
+      "end": 419,
+      "event_frame": 358,
+      "confidence": 0.8712989091873169,
+      "time_seconds": 179.0,
+      "class": "Goal",
+      "time_str": "2:59",
+      "half": 1
+    },
+    {
+      "start": 354,
+      "end": 475,
+      "event_frame": 414,
+      "confidence": 0.9836481809616089,
+      "time_seconds": 207.0,
+      "class": "Substitution",
+      "time_str": "3:27",
+      "half": 1
+    },
+    {
+      "start": 402,
+      "end": 524,
+      "event_frame": 463,
+      "confidence": 0.6774338185787201,
+      "time_seconds": 231.0,
+      "class": "Goal",
+      "time_str": "3:51",
+      "half": 1
+    },
+    {
+      "start": 417,
+      "end": 538,
+      "event_frame": 477,
+      "confidence": 0.9928504228591919,
+      "time_seconds": 238.5,
+      "class": "Goal",
+      "time_str": "3:58",
+      "half": 1
+    },
+    {
+      "start": 435,
+      "end": 556,
+      "event_frame": 495,
+      "confidence": 0.8442874550819397,
+      "time_seconds": 247.5,
+      "class": "Substitution",
+      "time_str": "4:07",
+      "half": 1
+    },
+    {
+      "start": 440,
+      "end": 561,
+      "event_frame": 500,
+      "confidence": 0.8926972150802612,
+      "time_seconds": 250.0,
+      "class": "Substitution",
+      "time_str": "4:10",
+      "half": 1
+    },
+    {
+      "start": 474,
+      "end": 595,
+      "event_frame": 534,
+      "confidence": 0.9600513577461243,
+      "time_seconds": 267.0,
+      "class": "Cards",
+      "time_str": "4:27",
+      "half": 1
+    },
+    {
+      "start": 487,
+      "end": 608,
+      "event_frame": 547,
+      "confidence": 0.8217453360557556,
+      "time_seconds": 273.5,
+      "class": "Goal",
+      "time_str": "4:33",
+      "half": 1
+    },
+    {
+      "start": 552,
+      "end": 673,
+      "event_frame": 612,
+      "confidence": 0.9838718175888062,
+      "time_seconds": 306.0,
+      "class": "Goal",
+      "time_str": "5:06",
+      "half": 1
+    },
+    {
+      "start": 591,
+      "end": 712,
+      "event_frame": 651,
+      "confidence": 0.9800897836685181,
+      "time_seconds": 325.5,
+      "class": "Goal",
+      "time_str": "5:25",
+      "half": 1
+    },
+    {
+      "start": 649,
+      "end": 770,
+      "event_frame": 709,
+      "confidence": 0.6724726557731628,
+      "time_seconds": 354.5,
+      "class": "Goal",
+      "time_str": "5:54",
+      "half": 1
+    },
+    {
+      "start": 701,
+      "end": 822,
+      "event_frame": 761,
+      "confidence": 0.9531005620956421,
+      "time_seconds": 380.5,
+      "class": "Goal",
+      "time_str": "6:20",
+      "half": 1
+    },
+    {
+      "start": 839,
+      "end": 961,
+      "event_frame": 900,
+      "confidence": 0.9394322037696838,
+      "time_seconds": 449.5,
+      "class": "Substitution",
+      "time_str": "7:29",
+      "half": 1
+    },
+    {
+      "start": 874,
+      "end": 995,
+      "event_frame": 934,
+      "confidence": 0.6531451344490051,
+      "time_seconds": 467.0,
+      "class": "Goal",
+      "time_str": "7:47",
+      "half": 1
+    },
+    {
+      "start": 914,
+      "end": 1035,
+      "event_frame": 974,
+      "confidence": 0.8875877857208252,
+      "time_seconds": 487.0,
+      "class": "Substitution",
+      "time_str": "8:07",
+      "half": 1
+    },
+    {
+      "start": 916,
+      "end": 1038,
+      "event_frame": 977,
+      "confidence": 0.9603842794895172,
+      "time_seconds": 488.0,
+      "class": "Substitution",
+      "time_str": "8:08",
+      "half": 1
+    },
+    {
+      "start": 919,
+      "end": 1040,
+      "event_frame": 979,
+      "confidence": 0.9992863535881042,
+      "time_seconds": 489.5,
+      "class": "Substitution",
+      "time_str": "8:09",
+      "half": 1
+    },
+    {
+      "start": 969,
+      "end": 1094,
+      "event_frame": 1031,
+      "confidence": 0.7249854326248169,
+      "time_seconds": 514.5,
+      "class": "Goal",
+      "time_str": "8:34",
+      "half": 1
+    },
+    {
+      "start": 1026,
+      "end": 1147,
+      "event_frame": 1086,
+      "confidence": 0.9923675656318665,
+      "time_seconds": 543.0,
+      "class": "Goal",
+      "time_str": "9:03",
+      "half": 1
+    },
+    {
+      "start": 1067,
+      "end": 1189,
+      "event_frame": 1128,
+      "confidence": 0.6403714120388031,
+      "time_seconds": 563.5,
+      "class": "Goal",
+      "time_str": "9:23",
+      "half": 1
+    }
+  ],
+  "audio_timeline": [],
+  "ocr_timeline": [],
+  "clip_timestamps": [],
+  "has_clip": false,
+  "video_duration_min": 9.941666666666666,
+  "summary": "The match highlights captured a series of critical inflection points. The game's scoring was defined by decisive goal events at 0:11, 2:36, 2:37, 3:58, 9:03. Tensions flared on the pitch, resulting in referee intervention and disciplinary cards shown at 2:44. Tactical adjustments were made as managers introduced fresh energy from the bench at 8:09. This highlight sequence captures the core strategy and pivotal moments that dictated the match outcome.",
+  "has_video": true,
+  "video_filename": "highlights_testtask.mp4",
+  "_video_path": "C:\\Users\\PULKIT\\AppData\\Local\\Temp\\pipeline_testtask\\source.mp4"
+}
