@@ -79,7 +79,7 @@ Three architectures were trained and compared on the SoccerNet Action Spotting b
 
 To bypass cloud hosting file limits and run heavy ML frameworks, this project utilizes a **Split-Cloud Architecture**:
 
-*   **Frontend (Vercel)**: Hosts the static user interface and the Three.js 3D animations. It is highly optimized and loads instantly.
+*   **Frontend (Vercel)**: Hosts the static user interface and the Three.js 3D animations. It is highly optimized and loads instantly. Accessible at: [https://football-highlights-detection.vercel.app](https://football-highlights-detection.vercel.app)
 *   **Backend (Render)**: Runs the Python server using Gunicorn. It handles all heavy calculations, loads the PyTorch checkpoints, parses OCR layouts, and extracts audio waveforms.
 
 ---
