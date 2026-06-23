@@ -264,7 +264,13 @@ async function checkLastJob() {
 // =====================================================
 // 5. API HELPERS
 // =====================================================
-const API = path => 'https://football-highlights-detection.onrender.com' + path;
+const API = path => {
+    const host = window.location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1') {
+        return path;
+    }
+    return 'https://football-highlights-detection.onrender.com' + path;
+};
 
 async function checkStatus() {
     try {
